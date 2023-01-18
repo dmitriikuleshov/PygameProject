@@ -1,6 +1,7 @@
 import sys
 import pygame
 from settings import *
+from level1 import Level1
 
 
 class ButtonSprite(pygame.sprite.Sprite):
@@ -64,6 +65,7 @@ class Game:
         # resizable window
         self.virtual_surface = pygame.Surface(SIZE)
         self.current_size = self.screen.get_size()
+        self.level = Level1(self.virtual_surface)
 
         # main menu text
         self.font = pygame.font.Font("assets/font.ttf", 30)
@@ -89,7 +91,21 @@ class Game:
         sys.exit()
 
     def play(self):
-        ...
+        self.screen = pygame.display.set_mode(SIZE, pygame.HWSURFACE | pygame.DOUBLEBUF | pygame.RESIZABLE)
+        while True:
+            for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    pygame.quit()
+                    sys.exit()
+                if event.type == pygame.VIDEORESIZE:
+                    self.current_size = event.size
+            self.virtual_surface.fill('grey')
+            self.level.run()
+
+            scaled_surface = pygame.transform.scale(self.virtual_surface, self.current_size)
+            self.screen.blit(scaled_surface, (0, 0))
+            pygame.display.flip()
+            self.clock.tick(FPS)
 
     def main_menu(self):
         self.screen = pygame.display.set_mode(SIZE)
