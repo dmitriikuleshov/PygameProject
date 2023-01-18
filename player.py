@@ -1,35 +1,25 @@
 import os
 import pygame
-
-
-def get_frames(path):
-    images = list(os.walk(path))[0][2]
-    frames = []
-    for image in images:
-        image_frame = pygame.image.load(f'{path}/{image}')
-        resized_frame = pygame.transform.scale(image_frame,
-                                               (image_frame.get_width() / 1.5, image_frame.get_height() / 1.5))
-        frames.append(resized_frame)
-    return frames
+from getting_data import get_frames
 
 
 class Player(pygame.sprite.Sprite):
-    frames_dict = {'idle': get_frames('data2/Treasure Hunters/Character/idle'),
-                   'run': get_frames('data2/Treasure Hunters/Character/run'),
-                   'jump': get_frames('data2/Treasure Hunters/Character/jump'),
-                   'fall': get_frames('data2/Treasure Hunters/Character/fall')}
+    frames_dict = {'idle': get_frames('data2/graphics/Sprites1/enemies/Sprites/1-Player-Bomb Guy/1-Idle'),
+                   'run': get_frames('data2/graphics/Sprites1/enemies/Sprites/1-Player-Bomb Guy/2-Run'),
+                   'jump': get_frames('data2/graphics/Sprites1/enemies/Sprites/1-Player-Bomb Guy/3-Jump Anticipation'),
+                   'fall': get_frames('data2/graphics/Sprites1/enemies/Sprites/1-Player-Bomb Guy/5-Fall')}
 
     def __init__(self, group, pos):
         super().__init__(group)
         self.image = self.frames_dict['idle'][0]
         self.rect = self.image.get_rect(topleft=pos)
         self.direction = pygame.math.Vector2(0, 0)
-        self.speed = 4
-        self.gravity = 0.4
-        self.jump_speed = -8
+        self.speed = 8
+        self.gravity = 0.8
+        self.jump_speed = -16
 
         self.frame_index = 0
-        self.animation_speed = 0.1
+        self.animation_speed = 0.15
         self.status = 'idle'
         self.facing_right = True
 
@@ -37,6 +27,8 @@ class Player(pygame.sprite.Sprite):
         self.on_ceiling = False
         self.on_left = False
         self.on_right = False
+
+        self.jump_sound = pygame.mixer.Sound('data2/sounds/Jump/mixkit-player-jumping-in-a-video-game-2043.wav')
 
     def animate(self):
         frames = self.frames_dict[self.status]
@@ -69,6 +61,7 @@ class Player(pygame.sprite.Sprite):
 
     def jump(self):
         self.direction.y = self.jump_speed
+        self.jump_sound.play()
 
     def get_input(self):
         keys = pygame.key.get_pressed()
