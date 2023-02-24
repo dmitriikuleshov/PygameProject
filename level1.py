@@ -1,5 +1,6 @@
 import sys
 
+import json
 import pygame
 
 from getting_data import get_level_markup, get_cut_images
@@ -301,10 +302,32 @@ class Level1:
         if pygame.sprite.spritecollide(self.player_sprite, self.water_kill_box_sprites, False):
             self.end_bg_music()
             self.water_kill_sound.play()
+            with open("coin_counters.json", mode="r") as json_file:
+                try:
+                    coin_counters_dict = json.load(json_file)
+                except Exception:
+                    coin_counters_dict = []
+                if len(coin_counters_dict) > 4:
+                    del coin_counters_dict[0]
+                coin_counters_dict.append(str(self.coin_counter))
+            with open("coin_counters.json", mode="w") as json_file:
+                json.dump(coin_counters_dict, json_file)
+
             self.game.main_menu()
         if pygame.sprite.spritecollide(self.player_sprite, self.door_end_box_sprites, False):
             self.end_level_sound.play()
             self.end_bg_music()
+            with open("coin_counters.json", mode="r") as json_file:
+                try:
+                    coin_counters_dict = json.load(json_file)
+                except Exception:
+                    coin_counters_dict = []
+                if len(coin_counters_dict) > 6:
+                    del coin_counters_dict[0]
+                coin_counters_dict.append(str(self.coin_counter))
+            with open("coin_counters.json", mode="w") as json_file:
+                json.dump(coin_counters_dict, json_file)
+
             self.game.main_menu()
 
     def check_coin_collision(self):

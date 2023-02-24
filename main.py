@@ -1,5 +1,6 @@
 import sys
 import pygame
+import json
 from settings import *
 from level1 import Level1
 
@@ -30,7 +31,7 @@ class ButtonSprite(pygame.sprite.Sprite):
                         )
 
     def set_pos_y(self, topleft_y):
-        self.pos = (pygame.display.get_surface().get_width() / 2 - self.image.get_width() / 2, topleft_y)
+        self.pos = (pygame.display.get_surface().get_width() / 2 - self.image.get_width() / 2 - 200, topleft_y)
         self.rect = self.image.get_rect(topleft=self.pos)
 
     def check_click(self, pos):
@@ -80,13 +81,19 @@ class Game:
         self.play_button = ButtonSprite(self.buttons_group, text='PLAY', size=(300, 100),
                                         main_color=pygame.Color((0, 0, 16)),
                                         hover_color=pygame.Color((0, 200, 0)))
-        self.play_button.set_pos_y(220)
+        self.play_button.set_pos_y(200)
         # quit button
         self.quit_button = ButtonSprite(self.buttons_group, text='QUIT', main_color=pygame.Color((0, 0, 16)),
                                         hover_color=pygame.Color((200, 0, 0)))
-        self.quit_button.set_pos_y(380)
+        self.quit_button.set_pos_y(360)
 
         self.start_sound = pygame.mixer.Sound('data2/sounds/Start/start.wav')
+
+        # score
+        self.score_label = self.font.render("SCORE", True, "orange")
+        self.score_label_pos = (575, 150)
+        self.score_texts = []
+        self.update_score_list()
 
     @staticmethod
     def terminate():
@@ -113,7 +120,21 @@ class Game:
             pygame.display.flip()
             self.clock.tick(FPS)
 
+    def update_score_list(self):
+        self.score_texts.clear()
+        with open("coin_counters.json", mode="r") as json_file:
+            try:
+                coin_counters_list = json.load(json_file)
+                coin_counters_list.reverse()
+            except Exception:
+                coin_counters_list = ["0"]
+            for ind, score in enumerate(coin_counters_list):
+                text = self.font.render(score, True, "yellow")
+                text_pos = (675, 225 + 75 * ind)
+                self.score_texts.append((text, text_pos))
+
     def main_menu(self):
+        self.update_score_list()
         self.screen = pygame.display.set_mode((900, 600))
         while True:
             for event in pygame.event.get():
@@ -135,6 +156,11 @@ class Game:
 
             self.screen.blit(self.background_image, (0, 0))
             self.screen.blit(self.main_menu_text, self.main_menu_text_pos)
+            self.screen.blit(self.score_label, self.score_label_pos)
+            for elem in self.score_texts:
+                text = elem[0]
+                pos = elem[1]
+                self.screen.blit(text, pos)
             self.buttons_group.draw(self.screen)
             pygame.display.flip()
             self.clock.tick(FPS)
